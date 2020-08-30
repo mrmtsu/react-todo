@@ -3,6 +3,7 @@
   "recommendations": [
     // Prettier をフォーマッターとして使う
     "esbenp.prettier-vscode",
+    "dbaeumer.vscode-eslint",
     "jpoissonnier.vscode-styled-components"
   ]
 }
