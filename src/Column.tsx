@@ -1,20 +1,35 @@
-import React from 'react'
+import React, { useState } from 'react'
 import styled from 'styled-components'
 import * as color from './color'
 import { Card } from './Card'
 import { PlusIcon } from './icon'
+import { InputForm as _InputForm } from './InputForm'
 
 export function Column({
   title,
-  cards,
+  filterValue: rawFilterValue,
+  cards: rawCards,
 }: {
   title?: string
+  filterValue?: string
   cards: {
     id: string
     text?: string
   }[]
 }) {
-  const totalCount = cards.length
+  const filterValue = rawFilterValue?.trim()
+  const keywords = filterValue?.toLowerCase().split(/\s+/g) ?? []
+  const cards = rawCards.filter(({ text }) =>
+    keywords?.every(w => text?.toLowerCase().includes(w)),
+  )
+  const totalCount = rawCards.length
+
+  const [text, setText] = useState('')
+
+  const [inputMode, setInputMode] = useState(false)
+  const toggleInput = () => setInputMode(v => !v)
+  const confirmInput = () => setText('')
+  const cancelInput = () => setInputMode(false)
 
   return (
     <Container>
@@ -22,8 +37,19 @@ export function Column({
         <CountBadge>{totalCount}</CountBadge>
         <ColumnName>{title}</ColumnName>
 
-        <AddButton />
+        <AddButton onClick={toggleInput} />
       </Header>
+
+      {inputMode && (
+        <InputForm
+          value={text}
+          onChange={setText}
+          onConfirm={confirmInput}
+          onCancel={cancelInput}
+        />
+      )}
+
+      {filterValue && <ResultCount>{cards.length} results</ResultCount>}
 
       <VerticalScroll>
         {cards.map(({ id, text }) => (
@@ -59,7 +85,7 @@ const CountBadge = styled.div`
   border-radius: 20px;
   padding: 2px 6px;
   color: ${color.Black};
-  background-color: ${color.Silver};
+  background-color: ${color.LightGreen};
   font-size: 12px;
   line-height: 1;
 `
@@ -80,6 +106,16 @@ const AddButton = styled.button.attrs({
   :hover {
     color: ${color.Blue};
   }
+`
+
+const InputForm = styled(_InputForm)`
+  padding: 8px;
+`
+
+const ResultCount = styled.div`
+  color: ${color.Black};
+  font-size: 12px;
+  text-align: center;
 `
 
 const VerticalScroll = styled.div`
